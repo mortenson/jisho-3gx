@@ -72,7 +72,7 @@ $(BUILD):
 #---------------------------------------------------------------------------------
 clean:
 	@echo clean ... 
-	@rm -fr $(BUILD) $(OUTPUT).3gx
+	@rm -fr $(BUILD) $(OUTPUT).3gx $(OUTPUT).elf
 
 re: clean all
 
@@ -96,11 +96,11 @@ $(OUTPUT).3gx : $(OFILES)
 	@$(bin2o)
 
 #---------------------------------------------------------------------------------
+.PRECIOUS: %.elf
 %.3gx: %.elf
 #---------------------------------------------------------------------------------
 	@echo creating $(notdir $@)
 	@3gxtool -s $(word 1, $^) $(TOPDIR)/$(PLGINFO) $@
-	@cp $(TOPDIR)/CTRPluginFramework-BlankTemplate_github.elf $(TOPDIR)/a.elf
 
 -include $(DEPENDS)
 
