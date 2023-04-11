@@ -23,3 +23,5 @@ Description: |
     - Super fast screenshot engine
 
 Compatibility: Any
+
+MemorySize: 5MiB
