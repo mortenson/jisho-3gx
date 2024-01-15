@@ -1,0 +1,21 @@
+Author: mortenson
+
+Version:
+    Major: 0
+    Minor: 0
+    Revision: 1
+
+Targets: 0
+
+Title: Jisho
+
+Summary: A plugin based on CTRPF which includes a Japanese dictionary
+
+Description: |
+  Beyond CTRPF capabilities, Jisho provides a Japanese dictionary you can
+  search with furigana. Words written in katakana are excluded to reduce
+  filesize.
+
+Compatibility: Any
+
+MemorySize: 10MiB

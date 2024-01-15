@@ -235,6 +235,10 @@ exit:
             if (!File::Exists(dictPath)) {
                 MessageBox("Missing dict", "Please install " + dictPath + " to your memory card root")();
             } else {
+                // Consts.
+                const int bufferSize = 2000;
+                const int maxResults = 20;
+
                 Keyboard keyboard;
                 std::string output = "";
                 keyboard.Open(output);
@@ -243,7 +247,6 @@ exit:
 
                 File dict;
                 File::Open(dict, dictPath, File::READ);
-                int bufferSize = 2000;
                 char* buffer = new char[bufferSize];
                 int result = dict.Read(buffer, bufferSize);
                 int fileSize = dict.GetSize();
@@ -282,7 +285,7 @@ exit:
                         matchingLines.pop_back();
                     }
                     for (auto & matchingLine : matchingLines) {
-                        if (numMatchingLines > 10) {
+                        if (numMatchingLines > maxResults) {
                             shouldBail = true;
                             break;
                         }

@@ -24,10 +24,10 @@ jobs:
       uses: actions/upload-artifact@v2
       with:
         name: Plugin 3GX File
-        path: CTRPluginFramework-BlankTemplate.3gx
+        path: Jisho.3gx
     
     - name: Upload Plugin ELF
       uses: actions/upload-artifact@v2
       with:
         name: Plugin ELF File
-        path: CTRPluginFramework-BlankTemplate.elf
+        path: Jisho.elf

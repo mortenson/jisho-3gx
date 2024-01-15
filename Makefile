@@ -9,8 +9,8 @@ include $(DEVKITARM)/3ds_rules
 
 CTRPFLIB	?=	$(DEVKITPRO)/libctrpf
 
-TARGET		:= 	$(notdir $(CURDIR))
-PLGINFO 	:= 	CTRPluginFramework.plgInfo
+TARGET		:= 	Jisho
+PLGINFO 	:= 	Jisho.plgInfo
 
 BUILD		:= 	Build
 INCLUDES	:= 	Includes
@@ -75,11 +75,11 @@ clean:
 	@rm -fr $(BUILD) $(OUTPUT).3gx $(OUTPUT).elf
 
 copy-local:
-	cp ./CTRPluginFramework-BlankTemplate.3gx /mnt/c/Users/Sam/AppData/Roaming/Citra/sdmc/luma/plugins/default.3gx
+	cp ./Jisho.3gx /mnt/c/Users/Sam/AppData/Roaming/Citra/sdmc/luma/plugins/default.3gx
 	cp ./JMdict_smol.txt /mnt/c/Users/Sam/AppData/Roaming/Citra/sdmc/JMdict_smol.txt
 
 copy-ftp:
-	curl --netrc --upload-file CTRPluginFramework-BlankTemplate.3gx ftp://192.168.0.204:5000/luma/plugins/default.3gx
+	curl --netrc --upload-file Jisho.3gx ftp://192.168.0.204:5000/luma/plugins/default.3gx
 	curl --netrc --upload-file JMdict_smol.txt ftp://192.168.0.204:5000/JMdict_smol.txt
 
 re: clean all copy-local
