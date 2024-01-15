@@ -246,57 +246,56 @@ exit:
                 int bufferSize = 2000;
                 char* buffer = new char[bufferSize];
                 int result = dict.Read(buffer, bufferSize);
-                int size = dict.GetSize();
+                int fileSize = dict.GetSize();
                 int i = 0;
                 std::string finding = "";
+                int numMatchingLines = 0;
                 std::string lastLine = "";
-                bool atLeastOneMatch = false;
-                while (i < size) {
+                while (i < fileSize) {
                     int readAmount = bufferSize;
                     bool lastIteration = false;
-                    if (i + readAmount > size) {
-                        readAmount = size - i;
+                    // Do not read more than the end of the file.
+                    if (i + readAmount > fileSize) {
+                        readAmount = fileSize - i;
                         lastIteration = true;
                     }
+                    // Read into the buffer.
                     result = dict.Read(buffer, readAmount);
                     if (result != File::OPResult::SUCCESS) {
                         // @todo log
                         break;
                     }
-                    auto ss = std::stringstream{buffer};
-                    std::string line = "";
-                    bool firstLine = true;
                     std::vector<std::string> matchingLines;
                     bool shouldBail = false;
-                    for (line; std::getline(ss, line, '\n');) {
-                        if (firstLine) {
-                            line = lastLine + line;
-                            lastLine = "";
-                            firstLine = false;
-                        }
+                    auto ss = std::stringstream{lastLine + buffer};
+                    for (std::string line; std::getline(ss, line, '\n');) {
                         if (line.rfind(search, 0) == 0) {
                             matchingLines.push_back(line);
-                            atLeastOneMatch = true;
-                        } else if (atLeastOneMatch) {
+                        // If we had a match and this doesn't match, bail.
+                        } else if (numMatchingLines > 0) {
                             shouldBail = true;
                         }
+                        lastLine = line;
                     }
-                    // Ignore last last line in case it was truncated.
-                    if (!matchingLines.empty() && !lastIteration) {
-                        // This will be appended to first line of next iteration.
-                        lastLine = matchingLines.back();
+                    // Ignore the last line, we'll get to it next iteration.
+                    if (!matchingLines.empty() && matchingLines.back() == lastLine) {
                         matchingLines.pop_back();
                     }
                     for (auto & matchingLine : matchingLines) {
+                        if (numMatchingLines > 10) {
+                            shouldBail = true;
+                            break;
+                        }
                         finding += matchingLine + "\n";
+                        numMatchingLines += 1;
                     }
-                    if (shouldBail || matchingLines.size() > 10) {
+                    if (shouldBail) {
                         break;
                     }
-                    i += bufferSize;
+                    i += readAmount;
                 }
                 dict.Close();
-                MessageBox("Results", finding, DialogType::DialogOk, ClearScreen::Both)();
+                MessageBox("Results for " + search, finding, DialogType::DialogOk, ClearScreen::Both)();
             }
         });
     }

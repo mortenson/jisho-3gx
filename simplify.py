@@ -22,12 +22,17 @@ def get_singleton(elem, selector):
   return ''
 
 for entry in parsed['JMdict']['entry']:
+  # loan word
   if entry.get('re_pri', '') == 'gai1' or entry.get('re_pri', '') == 'gai2':
     continue
 
   kanji = get_singleton(entry.get('k_ele', {}), 'keb')
   furigana = get_singleton(entry.get('r_ele', {}), 'reb')
   definition = get_singleton(entry.get('sense', {}), 'gloss')
+
+  # katakana
+  if ord(u"\u30a0") <= ord(furigana[0]) <= ord(u"\u30ff"):
+    continue
 
   if definition == '' or furigana == '':
     continue
