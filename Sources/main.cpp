@@ -9,6 +9,8 @@
 namespace CTRPluginFramework
 {
 
+    u32         MenuHotkeys = static_cast<u32>(Key::Start);
+
     // This patch the NFC disabling the touchscreen when scanning an amiibo, which prevents ctrpf to be used
     static void    ToggleTouchscreenForceOn(void)
     {
@@ -248,6 +250,7 @@ exit:
                 int i = 0;
                 std::string finding = "";
                 std::string lastLine = "";
+                bool atLeastOneMatch = false;
                 while (i < size) {
                     int readAmount = bufferSize;
                     bool lastIteration = false;
@@ -264,6 +267,7 @@ exit:
                     std::string line = "";
                     bool firstLine = true;
                     std::vector<std::string> matchingLines;
+                    bool shouldBail = false;
                     for (line; std::getline(ss, line, '\n');) {
                         if (firstLine) {
                             line = lastLine + line;
@@ -272,16 +276,22 @@ exit:
                         }
                         if (line.rfind(search, 0) == 0) {
                             matchingLines.push_back(line);
+                            atLeastOneMatch = true;
+                        } else if (atLeastOneMatch) {
+                            shouldBail = true;
                         }
                     }
                     // Ignore last last line in case it was truncated.
-                    int offset = 0;
                     if (!matchingLines.empty() && !lastIteration) {
+                        // This will be appended to first line of next iteration.
                         lastLine = matchingLines.back();
                         matchingLines.pop_back();
                     }
                     for (auto & matchingLine : matchingLines) {
                         finding += matchingLine + "\n";
+                    }
+                    if (shouldBail || matchingLines.size() > 10) {
+                        break;
                     }
                     i += bufferSize;
                 }

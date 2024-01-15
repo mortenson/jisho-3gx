@@ -80,6 +80,7 @@ copy-local:
 
 copy-ftp:
 	curl --netrc --upload-file CTRPluginFramework-BlankTemplate.3gx ftp://192.168.0.204:5000/luma/plugins/default.3gx
+	# curl --netrc --upload-file JMdict_smol.txt ftp://192.168.0.204:5000/JMdict_smol.txt
 
 re: clean all copy-local
 
