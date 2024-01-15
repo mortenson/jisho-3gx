@@ -76,6 +76,7 @@ clean:
 
 copy-local:
 	cp ./CTRPluginFramework-BlankTemplate.3gx /mnt/c/Users/Sam/AppData/Roaming/Citra/sdmc/luma/plugins/default.3gx
+	cp ./JMdict_smol.txt /mnt/c/Users/Sam/AppData/Roaming/Citra/sdmc/JMdict_smol.txt
 
 copy-ftp:
 	curl --netrc --upload-file CTRPluginFramework-BlankTemplate.3gx ftp://192.168.0.204:5000/luma/plugins/default.3gx

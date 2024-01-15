@@ -34,6 +34,8 @@ for entry in parsed['JMdict']['entry']:
 
   lines.append('|'.join([furigana, kanji, definition]))
 
+lines.sort()
+
 smol = '\n'.join(lines)
 
 with open('JMdict_smol.txt', 'w') as filetowrite:

@@ -4,6 +4,7 @@
 #include "Helpers/Wrappers.hpp"
 #include <string>
 #include <map>
+#include <sstream>
 
 namespace CTRPluginFramework
 {
@@ -228,11 +229,65 @@ exit:
     {
         menu += new MenuEntry("Jisho", nullptr, [](MenuEntry *entry)
         {
+            std::string dictPath = "romfs:/JMdict_smol.txt";
+            if (!File::Exists(dictPath)) {
+                MessageBox("Missing dict", "Please install " + dictPath + " to your memory card root")();
+            } else {
+                Keyboard keyboard;
+                std::string output = "";
+                keyboard.Open(output);
+                std::string search = RomajiToHiragana(output);
+                keyboard.Close();
 
-            Keyboard keyboard;
-            std::string output = "";
-            keyboard.Open(output);
-            MessageBox("UA", RomajiToHiragana(output))();
+                File dict;
+                File::Open(dict, dictPath, File::READ);
+                int bufferSize = 2000;
+                char* buffer = new char[bufferSize];
+                int result = dict.Read(buffer, bufferSize);
+                int size = dict.GetSize();
+                int i = 0;
+                std::string finding = "";
+                std::string lastLine = "";
+                while (i < size) {
+                    int readAmount = bufferSize;
+                    bool lastIteration = false;
+                    if (i + readAmount > size) {
+                        readAmount = size - i;
+                        lastIteration = true;
+                    }
+                    result = dict.Read(buffer, readAmount);
+                    if (result != File::OPResult::SUCCESS) {
+                        // @todo log
+                        break;
+                    }
+                    auto ss = std::stringstream{buffer};
+                    std::string line = "";
+                    bool firstLine = true;
+                    std::vector<std::string> matchingLines;
+                    for (line; std::getline(ss, line, '\n');) {
+                        if (firstLine) {
+                            line = lastLine + line;
+                            lastLine = "";
+                            firstLine = false;
+                        }
+                        if (line.rfind(search, 0) == 0) {
+                            matchingLines.push_back(line);
+                        }
+                    }
+                    // Ignore last last line in case it was truncated.
+                    int offset = 0;
+                    if (!matchingLines.empty() && !lastIteration) {
+                        lastLine = matchingLines.back();
+                        matchingLines.pop_back();
+                    }
+                    for (auto & matchingLine : matchingLines) {
+                        finding += matchingLine + "\n";
+                    }
+                    i += bufferSize;
+                }
+                dict.Close();
+                MessageBox("Results", finding, DialogType::DialogOk, ClearScreen::Both)();
+            }
         });
     }
 
