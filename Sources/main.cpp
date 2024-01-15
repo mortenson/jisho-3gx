@@ -1,11 +1,13 @@
 #include <3ds.h>
 #include "csvc.h"
 #include <CTRPluginFramework.hpp>
-
-#include <vector>
+#include "Helpers/Wrappers.hpp"
+#include <string>
+#include <map>
 
 namespace CTRPluginFramework
 {
+
     // This patch the NFC disabling the touchscreen when scanning an amiibo, which prevents ctrpf to be used
     static void    ToggleTouchscreenForceOn(void)
     {
@@ -67,39 +69,185 @@ exit:
         ToggleTouchscreenForceOn();
     }
 
+    std::string RomajiToHiragana(std::string romaji)
+    {
+        std::map<std::string, std::string>romaMap;
+        romaMap["a"] = "あ";
+        romaMap["i"] = "い";
+        romaMap["u"] = "う";
+        romaMap["e"] = "え";
+        romaMap["o"] ="お";
+        romaMap["ka"] = "か";
+        romaMap["ki"] = "き";
+        romaMap["ku"] = "く";
+        romaMap["ke"] = "け";
+        romaMap["ko"] = "こ";
+        romaMap["ga"] = "が";
+        romaMap["gi"] = "ぎ";
+        romaMap["gu"] = "ぐ";
+        romaMap["ge"] = "げ";
+        romaMap["go"] = "ご";
+        romaMap["sa"] = "さ";
+        romaMap["shi"] = "し";
+        romaMap["su"] = "す";
+        romaMap["se"] = "せ";
+        romaMap["so"] = "そ";
+        romaMap["za"] = "ざ";
+        romaMap["ji"] = "じ";
+        romaMap["zu"] = "ず";
+        romaMap["ze"] = "ぜ";
+        romaMap["zo"] = "ぞ";
+        romaMap["ta"] = "た";
+        romaMap["chi"] = "ち";
+        romaMap["tsu"] = "つ";
+        romaMap["te"] = "て";
+        romaMap["to"] = "と";
+        romaMap["da"] = "だ";
+        romaMap["zu"] = "づ";
+        romaMap["de"] = "で";
+        romaMap["do"] = "ど";
+        romaMap["na"] = "な";
+        romaMap["ni"] = "に";
+        romaMap["nu"] = "ぬ";
+        romaMap["ne"] = "ね";
+        romaMap["no"] = "の";
+        romaMap["ha"] = "は";
+        romaMap["hi"] = "ひ";
+        romaMap["fu"] = "ふ";
+        romaMap["he"] = "へ";
+        romaMap["ho"] = "ほ";
+        romaMap["ba"] = "ば";
+        romaMap["bi"] = "び";
+        romaMap["bu"] = "ぶ";
+        romaMap["be"] = "べ";
+        romaMap["bo"] = "ぼ";
+        romaMap["pa"] = "ぱ";
+        romaMap["pi"] = "ぴ";
+        romaMap["pu"] = "ぷ";
+        romaMap["pe"] = "ぺ";
+        romaMap["po"] = "ぽ";
+        romaMap["ma"] = "ま";
+        romaMap["mi"] = "み";
+        romaMap["mu"] = "む";
+        romaMap["me"] = "め";
+        romaMap["mo"] = "も";
+        romaMap["ya"] = "や";
+        romaMap["yu"] = "ゆ";
+        romaMap["yo"] = "よ";
+        romaMap["ra"] = "ら";
+        romaMap["ri"] = "り";
+        romaMap["ru"] = "る";
+        romaMap["re"] = "れ";
+        romaMap["ro"] = "ろ";
+        romaMap["wa"] = "わ";
+        romaMap["wo"] = "を";
+        romaMap["n"] = "ん";
+        romaMap["kya"] = "きゃ";
+        romaMap["kyu"] = "きゅ";
+        romaMap["kyo"] = "きょ";
+        romaMap["gya"] = "ぎゃ";
+        romaMap["gyu"] = "ぎゅ";
+        romaMap["gyo"] = "ぎょ";
+        romaMap["sha"] = "しゃ";
+        romaMap["shu"] = "しゅ";
+        romaMap["sho"] = "しょ";
+        romaMap["ja"] = "じゃ";
+        romaMap["ju"] = "じゅ";
+        romaMap["jo"] = "じょ";
+        romaMap["cha"] = "ちゃ";
+        romaMap["chu"] = "ちゅ";
+        romaMap["cho"] = "ちょ";
+        romaMap["nya"] = "にゃ";
+        romaMap["nyu"] = "にゅ";
+        romaMap["nyo"] = "にょ";
+        romaMap["hya"] = "ひゃ";
+        romaMap["hyu"] = "ひゅ";
+        romaMap["hyo"] = "ひょ";
+        romaMap["bya"] = "びゃ";
+        romaMap["byu"] = "びゅ";
+        romaMap["byo"] = "びょ";
+        romaMap["pya"] = "ぴゃ";
+        romaMap["pyu"] = "ぴゅ";
+        romaMap["pyo"] = "ぴょ";
+        romaMap["mya"] = "みゃ";
+        romaMap["myu"] = "みゅ";
+        romaMap["myo"] = "みょ";
+        romaMap["rya"] = "りゃ";
+        romaMap["ryu"] = "りゅ";
+        romaMap["ryo"] = "りょ";
+        romaMap["vu"] = "ゔ";
+        romaMap["sakuon"] = "っ";
+	    std::string resultStr = "";
+        int romajiLength = static_cast<int>(romaji.length());
+        int i = 0;
+        while (i < romajiLength) {
+            // n rule
+            if (i+2 < romajiLength &&
+                romaji[i] == 'n' &&
+                romaji[i+1] == 'n' &&
+                !romaMap.count(std::string(1, romaji[i+1]) + romaji[i+2])) {
+                    resultStr += romaMap["sakuon"];
+                    i += 1;
+            }
+            else {
+                int checkLen = std::min(3, romajiLength-i);
+                while (checkLen > 0) {
+                    std::string checkStr = std::string(&romaji[i], &romaji[i+checkLen]);
+                    if (romaMap.count(checkStr)) {
+                        resultStr += romaMap[checkStr];
+                        i += checkLen;
+                        if (i < romajiLength) {
+						    if (romaji[i] == 'o' && romaji[i-1] == 'o') {
+                                resultStr += romaMap["u"];
+                                i += 1;
+                            }
+                            else if (romaji[i] == 'e' && romaji[i-1] == 'e') {
+                                resultStr += romaMap["i"];
+                                i += 1;
+                            }
+                        }
+                        break;
+                    }
+                    else if (checkLen == 1) {
+                        if (i+1 < romajiLength) {
+                            if (checkStr == std::string(1, romaji[i+1])) {
+                                resultStr += romaMap["sakuon"];
+                            }
+                        }
+                        i += 1;
+                        break;
+                    }
+				    checkLen -= 1;
+                }
+            }
+        }
+        return resultStr;
+    }
+
     void    InitMenu(PluginMenu &menu)
     {
-        // Create your entries here, or elsewhere
-        // You can create your entries whenever/wherever you feel like it
-        
-        // Example entry
-        /*menu += new MenuEntry("Test", nullptr, [](MenuEntry *entry)
+        menu += new MenuEntry("Jisho", nullptr, [](MenuEntry *entry)
         {
-            std::string body("What's the answer ?\n");
 
-            body += std::to_string(42);
-
-            MessageBox("UA", body)();
-        });*/
+            Keyboard keyboard;
+            std::string output = "";
+            keyboard.Open(output);
+            MessageBox("UA", RomajiToHiragana(output))();
+        });
     }
 
     int     main(void)
     {
-        PluginMenu *menu = new PluginMenu("Action Replay", 0, 7, 4,
-                                            "A blank template plugin.\nGives you access to the ActionReplay and others tools.");
+        PluginMenu *menu = new PluginMenu("Jisho", 0, 0, 1, "Search a Japanese dictionary without leaving your game.");
 
-        // Synnchronize the menu with frame event
         menu->SynchronizeWithFrame(true);
 
-        // Init our menu entries & folders
         InitMenu(*menu);
 
-        // Launch menu and mainloop
         menu->Run();
 
         delete menu;
 
-        // Exit plugin
         return (0);
     }
 }

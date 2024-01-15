@@ -60,7 +60,7 @@ export INCLUDE	:=	$(foreach dir,$(INCLUDES),-I $(CURDIR)/$(dir) ) \
 
 export LIBPATHS	:=	$(foreach dir,$(LIBDIRS),-L $(dir)/lib)
 
-.PHONY: $(BUILD) clean all
+.PHONY: $(BUILD) clean all copy-local copy-ftp
 
 #---------------------------------------------------------------------------------
 all: $(BUILD)
@@ -74,7 +74,13 @@ clean:
 	@echo clean ... 
 	@rm -fr $(BUILD) $(OUTPUT).3gx $(OUTPUT).elf
 
-re: clean all
+copy-local:
+	cp ./CTRPluginFramework-BlankTemplate.3gx /mnt/c/Users/Sam/AppData/Roaming/Citra/sdmc/luma/plugins/default.3gx
+
+copy-ftp:
+	curl --netrc --upload-file CTRPluginFramework-BlankTemplate.3gx ftp://192.168.0.204:5000/luma/plugins/default.3gx
+
+re: clean all copy-local
 
 #---------------------------------------------------------------------------------
 
