@@ -23,17 +23,17 @@ jobs:
     - name: Upload Plugin
       uses: actions/upload-artifact@v2
       with:
-        name: Plugin 3GX File
+        name: Jisho.3gx
         path: Jisho.3gx
     
     - name: Upload Plugin ELF
       uses: actions/upload-artifact@v2
       with:
-        name: Plugin ELF File
+        name: Jisho.elf
         path: Jisho.elf
 
     - name: Upload Dictionary
       uses: actions/upload-artifact@v2
       with:
-        name: Dictionary TXT file
+        name: JMdict_smol.txt
         path: JMdict_smol.txt
