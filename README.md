@@ -12,7 +12,7 @@ This plugin is built with https://gitlab.com/thepixellizeross/ctrpluginframework
 
 A recent release of Luma3DS is required to use this plugin.
 
-1. Download the latest release or run a build
+1. Download artifacts from the latest release, latest workflow run, or run a build
 2. Copy `Jisho.3gx` to `luma/plugins/default.3gx` or `luma/plugins/<title id>.3gx`, depending on when you want it loaded
 3. Copy `JMdict_smol.txt` to the root of your SD card
 4. Enable the plugin loader using Rosalina

@@ -37,3 +37,12 @@ jobs:
       with:
         name: Dictionary TXT file
         path: JMdict_smol.txt
+
+    - name: Create release if needed
+      uses: softprops/action-gh-release@v1
+      if: ${{startsWith(github.ref, 'refs/tags/') }}
+      with:
+          files: |
+            Jisho.3gx
+            Jisho.elf
+            JMdict_smol.txt
