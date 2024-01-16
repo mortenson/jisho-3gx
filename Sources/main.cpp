@@ -72,6 +72,7 @@ exit:
         ToggleTouchscreenForceOn();
     }
 
+    // Credit to https://github.com/aleckretch/Romaji-to-Japanese-Converter
     std::string RomajiToHiragana(std::string romaji)
     {
         std::map<std::string, std::string>romaMap;
@@ -233,15 +234,16 @@ exit:
         {
             std::string dictPath = "romfs:/JMdict_smol.txt";
             if (!File::Exists(dictPath)) {
-                MessageBox("Missing dict", "Please install " + dictPath + " to your memory card root")();
+                MessageBox("Missing dict", "Please install JMdict_smol.txt to your memory card root")();
             } else {
-                // Consts.
                 const int bufferSize = 2000;
                 const int maxResults = 20;
 
                 Keyboard keyboard;
                 std::string output = "";
-                keyboard.Open(output);
+                if (keyboard.Open(output) != 0) {
+                    return;
+                }
                 std::string search = RomajiToHiragana(output);
                 keyboard.Close();
 
@@ -263,9 +265,10 @@ exit:
                         lastIteration = true;
                     }
                     // Read into the buffer.
+                    memset(buffer, 0, bufferSize);
                     result = dict.Read(buffer, readAmount);
                     if (result != File::OPResult::SUCCESS) {
-                        // @todo log
+                        finding += "\nERR: Failed to read entire file";
                         break;
                     }
                     std::vector<std::string> matchingLines;
@@ -281,7 +284,7 @@ exit:
                         lastLine = line;
                     }
                     // Ignore the last line, we'll get to it next iteration.
-                    if (!matchingLines.empty() && matchingLines.back() == lastLine) {
+                    if (!matchingLines.empty() && matchingLines.back() == lastLine && !lastIteration) {
                         matchingLines.pop_back();
                     }
                     for (auto & matchingLine : matchingLines) {
@@ -295,7 +298,7 @@ exit:
                     if (shouldBail) {
                         break;
                     }
-                    i += readAmount;
+                    i += bufferSize;
                 }
                 dict.Close();
                 MessageBox("Results for " + search, finding, DialogType::DialogOk, ClearScreen::Both)();
