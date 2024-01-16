@@ -250,7 +250,6 @@ exit:
                 File dict;
                 File::Open(dict, dictPath, File::READ);
                 char* buffer = new char[bufferSize];
-                int result = dict.Read(buffer, bufferSize);
                 int fileSize = dict.GetSize();
                 int i = 0;
                 std::string finding = "";
@@ -266,7 +265,7 @@ exit:
                     }
                     // Read into the buffer.
                     memset(buffer, 0, bufferSize);
-                    result = dict.Read(buffer, readAmount);
+                    int result = dict.Read(buffer, readAmount);
                     if (result != File::OPResult::SUCCESS) {
                         finding += "\nERR: Failed to read entire file";
                         break;
