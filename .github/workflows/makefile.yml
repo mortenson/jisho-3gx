@@ -31,3 +31,9 @@ jobs:
       with:
         name: Plugin ELF File
         path: Jisho.elf
+
+    - name: Upload Dictionary
+      uses: actions/upload-artifact@v2
+      with:
+        name: Dictionary TXT file
+        path: JMDict_smol.txt
