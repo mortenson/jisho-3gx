@@ -1,5 +1,7 @@
 # jisho-3gx
 
+<img src="https://github.com/mortenson/jisho-3gx/assets/2091002/8668bdd6-a247-4bf3-ac46-ac67cc447c1d" alt="A screenshot of the Jisho plugin" width="500px">
+
 A Luma3DS plugin that lets you search a Japanese dictionary while playing 3DS games.
 
 Useful for people learning Japanese by playing Japanese 3DS games.
