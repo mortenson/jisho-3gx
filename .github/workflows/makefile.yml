@@ -36,4 +36,4 @@ jobs:
       uses: actions/upload-artifact@v2
       with:
         name: Dictionary TXT file
-        path: JMDict_smol.txt
+        path: JMdict_smol.txt
