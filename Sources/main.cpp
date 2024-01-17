@@ -238,6 +238,7 @@ exit:
             } else {
                 const int bufferSize = 2000;
                 const int maxResults = 20;
+                const int indexMaxSize = 1000;
 
                 Keyboard keyboard;
                 std::string output = "";
@@ -247,12 +248,45 @@ exit:
                 std::string search = RomajiToHiragana(output);
                 keyboard.Close();
 
+                if (search == "") {
+                    return;
+                }
+
                 File dict;
                 File::Open(dict, dictPath, File::READ);
                 char* buffer = new char[bufferSize];
-                int fileSize = dict.GetSize();
-                int i = 0;
+
+                // The first line of the dictionary is an index to help us jump to the relevant kana.
                 std::string finding = "";
+                int seekOffset = 0;
+                int result = dict.Read(buffer, indexMaxSize);
+                if (result == File::OPResult::SUCCESS) {
+                    // Read index line.
+                    std::string indexLine = "";
+                    std::getline(std::stringstream{buffer}, indexLine, '\n');
+                    auto indexSS = std::stringstream{indexLine};
+                    int lastIndex = 0;
+                    // Read each index pair, recording the last match.
+                    for (std::string pair; std::getline(indexSS, pair, '|');) {
+                        auto pairSS = std::stringstream{pair};
+                        std::string kana;
+                        std::string index;
+                        std::getline(pairSS, kana, ':');
+                        std::getline(pairSS, index, ':');
+                        if (kana == "" || index == "") {
+                            continue;
+                        }
+                        if (search.find(kana, 0) == 0) {
+                            seekOffset = std::stoi(index) + indexLine.length();
+                        }
+                    }
+                }
+                dict.Rewind();
+                dict.Seek(seekOffset);
+
+                // Search for matches
+                int fileSize = dict.GetSize();
+                int i = seekOffset;
                 int numMatchingLines = 0;
                 std::string lastLine = "";
                 while (i < fileSize) {
@@ -274,7 +308,7 @@ exit:
                     bool shouldBail = false;
                     auto ss = std::stringstream{lastLine + buffer};
                     for (std::string line; std::getline(ss, line, '\n');) {
-                        if (line.rfind(search, 0) == 0) {
+                        if (line.find(search, 0) == 0) {
                             matchingLines.push_back(line);
                         // If we had a match and this doesn't match, bail.
                         } else if (numMatchingLines > 0) {

@@ -21,6 +21,9 @@ def get_singleton(elem, selector):
     return elem
   return ''
 
+def utf8len(s):
+  return len(s.encode('utf-8'))
+
 for entry in parsed['JMdict']['entry']:
   # loan word
   if entry.get('re_pri', '') == 'gai1' or entry.get('re_pri', '') == 'gai2':
@@ -42,6 +45,18 @@ for entry in parsed['JMdict']['entry']:
 lines.sort()
 
 smol = '\n'.join(lines)
+
+# Create index
+
+dictIndex = "index"
+chars = ["あ", "い", "う", "え", "お", "か", "き", "く", "け", "こ", "が", "ぎ", "ぐ", "げ", "ご", "さ", "し", "す", "せ", "そ", "ざ", "じ", "ず", "ぜ", "ぞ", "た", "ち", "つ", "て", "と", "だ", "づ", "で", "ど", "な", "に", "ぬ", "ね", "の", "は", "ひ", "ふ", "へ", "ほ", "ば", "び", "ぶ", "べ", "ぼ", "ぱ", "ぴ", "ぷ", "ぺ", "ぽ", "ま", "み", "む", "め", "も", "や", "ゆ", "よ", "ら", "り", "る", "れ", "ろ", "わ", "を", "ん"]
+for char in chars:
+  charIndex = smol.find("\n" + char)
+  if charIndex == -1:
+    continue
+  dictIndex += "|" + char + ":" + str(utf8len(smol[:charIndex]))
+
+smol = dictIndex + '\n' + smol
 
 with open('JMdict_smol.txt', 'w') as filetowrite:
     filetowrite.write(smol)
