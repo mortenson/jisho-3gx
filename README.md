@@ -41,3 +41,13 @@ Note that I don't know C++ very well, and know very little about 3DS development
 2. Install the `xmltodict` module if not already installed
 3. Download `JMdict_e.xml` from some EDICT mirror, for example http://ftp.edrdg.org/pub/Nihongo/JMdict_e
 4. Run `python3 simplify.py`
+
+The dictionary file has one header line, then one entry per line, sorted by code point. The plugin finds entries with a binary search. `simplify.py` writes this format.
+
+# Tests
+
+Search and romaji conversion have no 3DS dependencies. Run them on your computer:
+
+```
+g++ -std=c++17 -IIncludes tests/host_tests.cpp -o jisho_tests && ./jisho_tests JMdict_smol.txt
+```

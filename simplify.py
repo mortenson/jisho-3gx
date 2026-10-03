@@ -3,7 +3,9 @@ import xmltodict
 with open('JMdict_e.xml', 'r') as f:
 	data = f.read()
 
-parsed = xmltodict.parse(data)
+# JMdict defines its tags (&n;, &v5u; and so on) as entities in its DTD.
+# Recent xmltodict versions block entities by default. Only use this on the official JMdict file.
+parsed = xmltodict.parse(data, disable_entities=False)
 
 lines = []
 
@@ -21,23 +23,48 @@ def get_singleton(elem, selector):
     return elem
   return ''
 
-def utf8len(s):
-  return len(s.encode('utf-8'))
+def get_first_gloss(senses):
+  # A sense has one gloss (a string or dict) or many (a list). Use the first gloss of the first sense that has one.
+  if isinstance(senses, dict):
+    senses = [senses]
+  if not isinstance(senses, list):
+    return ''
+  for sense in senses:
+    glosses = sense.get('gloss', [])
+    if not isinstance(glosses, list):
+      glosses = [glosses]
+    for gloss in glosses:
+      if isinstance(gloss, dict):
+        gloss = gloss.get('#text', '')
+      if isinstance(gloss, str) and gloss != '':
+        return gloss
+  return ''
+
+def get_reading_priorities(elem):
+  # re_pri lives inside r_ele, not on the entry. It can be a string or a list.
+  if isinstance(elem, dict):
+    elem = [elem]
+  if not isinstance(elem, list):
+    return []
+  pri = elem[0].get('re_pri', [])
+  if isinstance(pri, str):
+    return [pri]
+  return pri
 
 for entry in parsed['JMdict']['entry']:
   # loan word
-  if entry.get('re_pri', '') == 'gai1' or entry.get('re_pri', '') == 'gai2':
+  if any(p in ('gai1', 'gai2') for p in get_reading_priorities(entry.get('r_ele', {}))):
     continue
 
   kanji = get_singleton(entry.get('k_ele', {}), 'keb')
   furigana = get_singleton(entry.get('r_ele', {}), 'reb')
-  definition = get_singleton(entry.get('sense', {}), 'gloss')
+  definition = get_first_gloss(entry.get('sense', []))
+
+  if definition == '' or furigana == '':
+    continue
 
   # katakana
   if ord(u"\u30a0") <= ord(furigana[0]) <= ord(u"\u30ff"):
-    continue
-
-  if definition == '' or furigana == '':
     continue
 
   lines.append('|'.join([furigana, kanji, definition]))
@@ -46,17 +73,9 @@ lines.sort()
 
 smol = '\n'.join(lines)
 
-# Create index
-
-dictIndex = "index"
-chars = ["あ", "い", "う", "え", "お", "か", "き", "く", "け", "こ", "が", "ぎ", "ぐ", "げ", "ご", "さ", "し", "す", "せ", "そ", "ざ", "じ", "ず", "ぜ", "ぞ", "た", "ち", "つ", "て", "と", "だ", "づ", "で", "ど", "な", "に", "ぬ", "ね", "の", "は", "ひ", "ふ", "へ", "ほ", "ば", "び", "ぶ", "べ", "ぼ", "ぱ", "ぴ", "ぷ", "ぺ", "ぽ", "ま", "み", "む", "め", "も", "や", "ゆ", "よ", "ら", "り", "る", "れ", "ろ", "わ", "を", "ん"]
-for char in chars:
-  charIndex = smol.find("\n" + char)
-  if charIndex == -1:
-    continue
-  dictIndex += "|" + char + ":" + str(utf8len(smol[:charIndex]))
-
-smol = dictIndex + '\n' + smol
+# The first line is a header. The plugin skips it and binary searches the sorted lines after it.
+# Lines are sorted by code point, which matches the byte order of UTF-8.
+smol = 'jisho1\n' + smol
 
 with open('JMdict_smol.txt', 'w') as filetowrite:
     filetowrite.write(smol)
